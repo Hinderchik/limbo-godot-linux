@@ -306,61 +306,23 @@ func _ready():
 func switch_scene_to_ending():
 	for window in window_list:
 		window.queue_free()
-		
-			# Проверяем ОС для показа терминала вместо синего экрана
-	var os_name = OS.get_name()
-	if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD":
-		# Для Linux показываем фейк-терминал
 		show_linux_terminal_ending()
-		return
-		
-	if (not fullscreen_ending) or no_ending_screen:
-		get_viewport().set_embedding_subwindows(false)
-		mainwindow.set_flag(Window.FLAG_NO_FOCUS, false)
-		mainwindow.set_flag(Window.FLAG_BORDERLESS, false)
-	if no_ending_screen: mainwindow.set_flag(Window.FLAG_TRANSPARENT, false)
-		#mainwindow.set_mode(Window.MODE_MAXIMIZED)
-	if not no_ending_screen:
-		get_tree().change_scene_to_packed(limboendingscene)
-	else:
-		mainwindow.set_mode(Window.MODE_MINIMIZED)
-		if KeyManager.correctkeychosen:
-			dialog.set_text("You picked the CORRECT key!")
-			LimboAudio.play_sfx(true) # winsfx
-		else:
-			dialog.set_text("You picked the WRONG key!")
-			LimboAudio.play_sfx()
-		dialog.show()
 		
 func show_linux_terminal_ending():
-	# Останавливаем музыку
 	LimboAudio.stop()
 	
-	# Убираем прозрачность окна
 	get_viewport().set_transparent_background(false)
 	mainwindow.set_flag(Window.FLAG_TRANSPARENT, false)
 	mainwindow.set_flag(Window.FLAG_BORDERLESS, false)
 	mainwindow.set_flag(Window.FLAG_NO_FOCUS, false)
 	
-	# Загружаем сцену терминала
-	var terminal_scene = load("res://scenes/fake_terminal.tscn")
-	if terminal_scene:
-		# Очищаем текущую сцену
-		for child in get_children():
-			if child != $DebugTimer and child != $ChangeSceneTimer and child != $WinLoseDialog:
-				if child.has_method("queue_free"):
-					child.queue_free()
-		
-		# Добавляем терминал как дочерний элемент
-		var terminal_instance = terminal_scene.instantiate()
+	var term_scene = load("res://scenes/fake_terminal.tscn")  # переименовано
+	if term_scene:
+		var terminal_instance = term_scene.instantiate()
 		add_child(terminal_instance)
 		
-		# Если выбрана неправильная клавиша, проигрываем звук ошибки
 		if not KeyManager.correctkeychosen:
 			LimboAudio.play_sfx()
-	else:
-		# fallback если файла нет
-		show_simple_linux_game_over()
 
 func show_simple_linux_game_over():
 	# Простой вариант, если терминал не загрузился

@@ -13,19 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Godot 4.2.2 (Standard Linux Build)
+      - name: Download Godot 4.6
         run: |
-          # Используем официальную ссылку, которая точно работает
-          wget -O godot.zip https://downloads.tuxfamily.org/godotengine/4.2.2/Godot_v4.2.2-stable_linux.x86_64.zip
-          unzip godot.zip
-          # Переименовываем скачанный исполняемый файл для удобства
-          mv Godot_v4.2.2-stable_linux.x86_64 godot_exec
-          chmod +x godot_exec
+          wget https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
+          unzip Godot_v4.6-stable_linux.x86_64.zip
+          chmod +x Godot_v4.6-stable_linux.x86_64
+          mv Godot_v4.6-stable_linux.x86_64 godot_exec
 
       - name: Export Linux build
         run: |
           mkdir -p builds
-          # Используем скачанный godot_exec для экспорта
           ./godot_exec --headless --export-release "Linux Universal" builds/limbo-linux.x86_64
 
       - name: Upload Linux build
