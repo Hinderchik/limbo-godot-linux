@@ -1,0 +1,29 @@
+name: "Build Godot 4.4 Linux"
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Godot 4.4
+        uses: appsinacup/setup-godot-action@main
+        with:
+          version: '4.4-stable'
+          download_template: true
+
+      - name: Build Project
+        run: |
+          mkdir -v -p build/linux
+          godot --headless --export-release "Linux Universal" build/linux/limbo-linux.x86_64
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: limbo-linux-x86_64
+          path: build/linux
