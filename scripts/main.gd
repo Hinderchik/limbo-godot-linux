@@ -1,5 +1,7 @@
 extends Node
 
+var terminal_scene = null
+
 ## Prints some messages to console for debug purposes
 @export var debugmessage := false
 ## Don't move the key automatically
@@ -295,10 +297,23 @@ func _ready():
 			LimboAudio.play(13.6)
 			for window in window_list:
 				window.finishing_move()
+				
+		# Проверка ОС для отладки
+	print("Running on: ", OS.get_name())
+	if OS.get_name() == "Linux":
+		print("Linux mode activated - terminal ending will be used")
 
 func switch_scene_to_ending():
 	for window in window_list:
 		window.queue_free()
+		
+			# Проверяем ОС для показа терминала вместо синего экрана
+	var os_name = OS.get_name()
+	if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD":
+		# Для Linux показываем фейк-терминал
+		show_linux_terminal_ending()
+		return
+		
 	if (not fullscreen_ending) or no_ending_screen:
 		get_viewport().set_embedding_subwindows(false)
 		mainwindow.set_flag(Window.FLAG_NO_FOCUS, false)
@@ -316,6 +331,59 @@ func switch_scene_to_ending():
 			dialog.set_text("You picked the WRONG key!")
 			LimboAudio.play_sfx()
 		dialog.show()
+		
+func show_linux_terminal_ending():
+	# Останавливаем музыку
+	LimboAudio.stop()
+	
+	# Убираем прозрачность окна
+	get_viewport().set_transparent_background(false)
+	mainwindow.set_flag(Window.FLAG_TRANSPARENT, false)
+	mainwindow.set_flag(Window.FLAG_BORDERLESS, false)
+	mainwindow.set_flag(Window.FLAG_NO_FOCUS, false)
+	
+	# Загружаем сцену терминала
+	var terminal_scene = load("res://scenes/fake_terminal.tscn")
+	if terminal_scene:
+		# Очищаем текущую сцену
+		for child in get_children():
+			if child != $DebugTimer and child != $ChangeSceneTimer and child != $WinLoseDialog:
+				if child.has_method("queue_free"):
+					child.queue_free()
+		
+		# Добавляем терминал как дочерний элемент
+		var terminal_instance = terminal_scene.instantiate()
+		add_child(terminal_instance)
+		
+		# Если выбрана неправильная клавиша, проигрываем звук ошибки
+		if not KeyManager.correctkeychosen:
+			LimboAudio.play_sfx()
+	else:
+		# fallback если файла нет
+		show_simple_linux_game_over()
+
+func show_simple_linux_game_over():
+	# Простой вариант, если терминал не загрузился
+	var label = Label.new()
+	if KeyManager.correctkeychosen:
+		label.text = "YOU WIN!\nSystem will reboot in 5 seconds..."
+		LimboAudio.play_sfx(true)
+	else:
+		label.text = "GAME OVER\nSystem will reboot in 5 seconds..."
+		LimboAudio.play_sfx()
+	
+	label.add_theme_color_override("font_color", Color(0, 1, 0))
+	label.add_theme_font_size_override("font_size", 24)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	add_child(label)
+	
+	var timer = Timer.new()
+	add_child(timer)
+	timer.wait_time = 5
+	timer.one_shot = true
+	timer.timeout.connect(func(): get_tree().quit())
+	timer.start()
 	
 func open_setting_window():
 	if window_list.size() == 8 and not disable_opening_settings:
