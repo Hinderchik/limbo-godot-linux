@@ -1,7 +1,6 @@
 extends Control
 
 @onready var text_display = $RichTextLabel
-@onready var reboot_timer = $Timer
 
 var lines = []
 var current_line = 0
@@ -21,15 +20,33 @@ func _setup_terminal_lines():
 		"rm: cannot remove './important_file': Operation not permitted",
 		"rm: cannot remove './system': Device or resource busy",
 		"",
+		"\x1b[31m[FATAL] Kernel panic - not syncing: VFS: Unable to mount root fs\x1b[0m",
+		"\x1b[31m[FATAL] CPU: 0 PID: 1 Comm: swapper/0 Not tainted\x1b[0m",
+		"",
 		"[ERROR] Critical system files corrupted!",
 		"[ERROR] Security breach detected!",
+		"[WARNING] Unauthorized access attempt logged",
+		"[WARNING] Your IP has been recorded",
 		"",
-		"System integrity check: FAILED",
-		"Forcing reboot in 5 seconds...",
+		"System integrity check: \x1b[31mFAILED\x1b[0m",
 		"",
-		"Broadcast message from user@linux (pts/0):",
+		"\x1b[31m>>> WARNING: System compromised <<<\x1b[0m",
+		"\x1b[31m>>> All your files are being encrypted <<<\x1b[0m",
 		"",
-		">>> The system will reboot NOW! <<<"
+		"Scanning /home/user/Documents...",
+		"Scanning /home/user/Downloads...",
+		"Scanning /home/user/Desktop...",
+		"",
+		"[OK] 0 files recovered",
+		"[FAIL] 1337 files corrupted",
+		"",
+		"\x1b[31m>>> YOUR SYSTEM IS FUCKED <<<\x1b[0m",
+		"",
+		"Broadcast message from root@linux (pts/0):",
+		"",
+		"\x1b[31m>>> The NSA is watching you <<<\x1b[0m",
+		"",
+		"Press Ctrl+C to exit..."
 	]
 
 func _start_typing():
@@ -39,8 +56,6 @@ func _start_typing():
 
 func _type_next_character():
 	if current_line >= lines.size():
-		reboot_timer.start(5)
-		reboot_timer.timeout.connect(_on_reboot_timer_timeout)
 		return
 		
 	var line = lines[current_line]
@@ -53,25 +68,9 @@ func _type_next_character():
 		text_display.text += "\n"
 		current_line += 1
 		char_index = 0
-		await get_tree().create_timer(0.2).timeout
+		await get_tree().create_timer(0.15).timeout
 		_type_next_character()
 
-func _on_reboot_timer_timeout():
-	reboot_timer.timeout.disconnect(_on_reboot_timer_timeout)
-	_reboot_system()
-
-func _reboot_system():
-	var os_name = OS.get_name()
-	match os_name:
-		"Linux":
-			var output = []
-			var exit_code = OS.execute("shutdown", ["-r", "now"], output, true)
-			if exit_code != 0:
-				OS.alert("System would reboot now (shutdown command failed)", "Fake Terminal")
-				get_tree().quit()
-		_:
-			OS.alert("System would reboot now (simulated)", "Fake Terminal")
-			get_tree().quit()
-
-func show_terminal():
-	visible = true
+func _input(event):
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
+		get_tree().quit()
