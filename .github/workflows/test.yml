@@ -9,6 +9,9 @@ on:
       - 'README.md'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -90,5 +93,3 @@ jobs:
             limbo-windows.zip
           draft: false
           prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
