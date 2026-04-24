@@ -20,13 +20,22 @@ jobs:
           chmod +x Godot_v4.2.2-stable_linux.x86_64
           mv Godot_v4.2.2-stable_linux.x86_64 godot_exec
           
+          # Скачиваем экспортные шаблоны
           wget https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
-          mkdir -p /home/runner/.local/share/godot/export_templates/4.2.2-stable
-          unzip Godot_v4.2.2-stable_export_templates.tpz -d /home/runner/.local/share/godot/export_templates/4.2.2-stable/
+          
+          # Создаём правильную структуру папок (обрати внимание: .stable а не -stable)
+          mkdir -p /home/runner/.local/share/godot/export_templates/4.2.2.stable
+          unzip Godot_v4.2.2-stable_export_templates.tpz -d /home/runner/.local/share/godot/export_templates/4.2.2.stable/
+          
+          # Проверяем, что файлы распаковались
+          ls -la /home/runner/.local/share/godot/export_templates/4.2.2.stable/templates/
 
       - name: Export Linux build
         run: |
           mkdir -p builds
+          # Открываем проект один раз для импорта ресурсов
+          ./godot_exec --headless --import
+          # Экспортируем
           ./godot_exec --headless --export-release "Linux Universal" builds/limbo-linux.x86_64
 
       - name: Upload Linux build
