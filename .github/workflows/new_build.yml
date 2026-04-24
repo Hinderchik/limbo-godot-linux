@@ -12,8 +12,8 @@ jobs:
       - name: Setup Godot
         uses: chickensoft-games/setup-godot@v1
         with:
-          godot-version: 4.2.2
-          export-templates: true
+          version: 4.2.2
+          include-templates: true
 
       - name: Export Linux build
         run: |
