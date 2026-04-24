@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -75,7 +76,7 @@ jobs:
           echo "✅ Windows build verified"
 
       - name: All checks passed
-        run: echo "✅ Все сборки успешно проверены!"
+        run: echo "✅ All builds verified"
 
   release:
     runs-on: ubuntu-latest
@@ -112,24 +113,8 @@ jobs:
           name: "Limbo Game ${{ steps.get_version.outputs.VERSION }}"
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           body: |
-            ## 🎮 Limbo Keys Minigame
-            
-            ### 🐧 Linux (x86_64)
-            - Скачайте `limbo-linux.zip`
-            - Распакуйте: `unzip limbo-linux.zip`
-            - Запустите: `./limbo-linux.x86_64`
-            
-            ### 🪟 Windows (64-bit)
-            - Скачайте `limbo-windows.zip`
-            - Распакуйте и запустите `limbo-windows.exe`
-            
-            ### 📝 Что нового
-            - Добавлен фейк-терминал для Linux
-            - Исправлены баги с прозрачностью
-            - Оптимизация для слабых ПК
-            
-            > [!NOTE]
-            > Игра автоматически определяет ОС и показывает соответствующий экран завершения
+            Linux build: limbo-linux.zip
+            Windows build: limbo-windows.zip
           files: |
             limbo-linux.zip
             limbo-windows.zip
