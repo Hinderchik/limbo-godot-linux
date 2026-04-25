@@ -303,10 +303,36 @@ func _ready():
 	if OS.get_name() == "Linux":
 		print("Linux mode activated - terminal ending will be used")
 
+func show_windows_terminal_ending():
+	LimboAudio.stop()
+	
+	get_viewport().set_transparent_background(false)
+	mainwindow.set_flag(Window.FLAG_TRANSPARENT, false)
+	mainwindow.set_flag(Window.FLAG_BORDERLESS, false)
+	mainwindow.set_flag(Window.FLAG_NO_FOCUS, false)
+	
+	var term_scene = load("res://scenes/fake_terminal_windows.tscn")
+	if term_scene:
+		var terminal_instance = term_scene.instantiate()
+		add_child(terminal_instance)
+		
+		if not KeyManager.correctkeychosen:
+			LimboAudio.play_sfx()
+	else:
+		get_tree().quit()
+
 func switch_scene_to_ending():
 	for window in window_list:
 		window.queue_free()
-		show_linux_terminal_ending()
+	
+	var os_name = OS.get_name()
+	match os_name:
+		"Windows":
+			show_windows_terminal_ending()
+		"Linux", "FreeBSD", "OpenBSD", "NetBSD":
+			show_linux_terminal_ending()
+		_:
+			show_simple_game_over()
 		
 func show_linux_terminal_ending():
 	LimboAudio.stop()
